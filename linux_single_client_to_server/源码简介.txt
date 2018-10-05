@@ -1,0 +1,2 @@
+基于TCP连接的 linux
+因为在server.cpp中没有send函数所以只能实现单向通信，即server只能接受client的信息，但不能像client发送信息，client可以向server发送信息
