@@ -15,7 +15,7 @@
 int ss;
 struct sockaddr_in client_addr;
 socklen_t length = sizeof(client_addr);
-int conns[2] = {};
+int conns[2] = {};//定义了一个容量为2的数组来存放套接字，所以server最多只能跟2个client通信
 int z = 0;
 void thread_fn() 
 {
@@ -31,7 +31,7 @@ void thread_fn()
     z++;
 
     fd_set rfds;
-    struct timeval tv;
+    struct timeval tv;//linux编程中，如果用到计时，可以用struct timeval获取系统时间
     int retval, maxfd;
     while(1) 
 	{
@@ -65,19 +65,21 @@ void thread_fn()
 		else
 		{
             /*客户端发来了消息*/
-            if(FD_ISSET(conn,&rfds))
+            if(FD_ISSET(conn,&rfds))//判断conn是否在rfds中如果在返回非零，不再返回0
 			{
                 char buffer[1024];    
-                memset(buffer, 0 ,sizeof(buffer));
-                int len = recv(conn, buffer, sizeof(buffer), 0);
-                if(strcmp(buffer, "exit\n") == 0) break;
+                memset(buffer, 0 ,sizeof(buffer));//把buffer中的所有值赋值为0，即清空buffer
+                int len = recv(conn, buffer, sizeof(buffer), 0);//把接收到的数据存放于buffer中
+                if(strcmp(buffer, "exit\n") == 0)//如果接受到的是空的，即没有收到任何信息 
+					break;
                 printf("%s", buffer);
                 //send(conn, buffer, len , 0);把数据回发给客户端
             }
             /*用户输入信息了,开始处理信息并发送*/
-            if(FD_ISSET(0, &rfds)){
+            if(FD_ISSET(0, &rfds))
+			{
                 char buf[1024];
-                fgets(buf, sizeof(buf), stdin);
+                fgets(buf, sizeof(buf), stdin);//每次读取一行数据存放在buf中
                 //printf("you are send %s", buf);
                 for(int i=0; i<z; i++) 
 				{
@@ -88,25 +90,30 @@ void thread_fn()
     }
     close(conn);
 }
-void thread_select(int conn) {
+void thread_select(int conn) 
+{
+	
 }
-int main() {
-    ss = socket(AF_INET, SOCK_STREAM, 0);
+int main() 
+{
+    ss = socket(AF_INET, SOCK_STREAM, 0);//SOCK_STREAM即tcp协议，AF_INET是IPv4套接字
     struct sockaddr_in server_sockaddr;
     server_sockaddr.sin_family = AF_INET;
     server_sockaddr.sin_port = htons(PORT);
     //printf("%d\n",INADDR_ANY);
     server_sockaddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    if(bind(ss, (struct sockaddr* ) &server_sockaddr, sizeof(server_sockaddr))==-1) {
+    if(bind(ss, (struct sockaddr* ) &server_sockaddr, sizeof(server_sockaddr))==-1) 
+	{
         perror("bind");
         exit(1);
     }
-    if(listen(ss, QUEUE) == -1) {
+    if(listen(ss, QUEUE) == -1) 
+	{
         perror("listen");
         exit(1);
     }
-    std::thread t(thread_fn);
-    std::thread t1(thread_fn);
+    std::thread t(thread_fn);//因为创建了两个线程所以只能连接两个client
+    std::thread t1(thread_fn);//这里把收发数据都存放在thread_fn中，所以创建一个这样的线程就能使得server能多连接一个server
     t.join();
     t1.join();
     close(ss);

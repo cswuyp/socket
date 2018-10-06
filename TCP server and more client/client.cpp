@@ -46,7 +46,7 @@ int main()
         if(maxfd < sock_cli)
             maxfd = sock_cli;
         /*设置超时时间*/
-        tv.tv_sec = 5;
+        tv.tv_sec = 10;
         tv.tv_usec = 0;
         /*等待聊天*/
         retval = select(maxfd+1, &rfds, NULL, NULL, &tv);

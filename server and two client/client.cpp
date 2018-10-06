@@ -50,15 +50,20 @@ int main()
         tv.tv_usec = 0;
         /*等待聊天*/
         retval = select(maxfd+1, &rfds, NULL, NULL, &tv);
-        if(retval == -1){
+        if(retval == -1)
+		{
             printf("select出错，客户端程序退出\n");
             break;
-        }else if(retval == 0){
+        }else if(retval == 0)
+		{
             printf("客户端没有任何输入信息，并且服务器也没有信息到来，waiting...\n");
             continue;
-        }else{
+        }
+		else
+		{
             /*服务器发来了消息*/
-            if(FD_ISSET(sock_cli,&rfds)){
+            if(FD_ISSET(sock_cli,&rfds))
+			{
                 char recvbuf[BUFFER_SIZE];
                 int len;
                 len = recv(sock_cli, recvbuf, sizeof(recvbuf),0);
@@ -66,7 +71,8 @@ int main()
                 memset(recvbuf, 0, sizeof(recvbuf));
             }
             /*用户输入信息了,开始处理信息并发送*/
-            if(FD_ISSET(0, &rfds)){
+            if(FD_ISSET(0, &rfds))
+			{
                 char sendbuf[BUFFER_SIZE];
                 fgets(sendbuf, sizeof(sendbuf), stdin);
                 send(sock_cli, sendbuf, strlen(sendbuf),0); //发送
